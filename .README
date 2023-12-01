@@ -1,0 +1,6 @@
+Проект для учёта транзакций пользователя.
+
+Для запуска из под докера:
+
+docker build -t my-backend .
+docker run -p 8000:8000 my-backend
