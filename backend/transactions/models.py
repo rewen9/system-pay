@@ -49,7 +49,7 @@ class Transactions(models.Model):
         )
         transaction.save()
 
-        customer.balance += amount
+        customer.balance += int(amount)
         customer.save(update_fields=['balance'])
 
         transaction.status = cls.STATUS_COMPLETED

@@ -34,9 +34,10 @@ class Products_count(models.Model):
         on_delete=models.CASCADE,
         primary_key=True,
     )
+    available_quantity = models.PositiveIntegerField()
+    
     class Meta:
         app_label = 'products'
-        
-    available_quantity = models.PositiveIntegerField()
+    
     def __str__(self):
         return self.id
