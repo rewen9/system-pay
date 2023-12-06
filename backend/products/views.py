@@ -26,27 +26,29 @@ class ProductsViewSet(viewsets.ModelViewSet):
         
         return Response(js, status=res_status)
 
-    @action(methods=['get'], detail=False)
+    @action(methods=['get'], detail=False, url_path='products_max_price')
     def get_products_under_max_price(self, request):
         """Получить список продуктов не более указанной суммы"""
         res_status = status.HTTP_200_OK
-        max_price = request.data.get('max_price') or 0
-        products = Products_price.objects.filter(price__lte=max_price)
-        products = Products.objects.select_related('products_price', 'products_count').filter(
-            id__in=products
-        )
-        results = []
-         # Итерируемся по отфильтрованным товарам и получаем нужные данные
-        for product in products:
-            product_data = {
-                'id': product.pk,
-                'name': product.name,
-                'quantity': product.products_count.available_quantity,
-                'price': product.products_price.price,
-            }
-            results.append(product_data)
-
-        res_status = status.HTTP_200_OK
+        
+        try:
+            max_price = request.query_params.get('max_price') or 0
+            products = Products_price.objects.filter(price__lte=max_price)
+            products = Products.objects.select_related('products_price', 'products_count').filter(
+                id__in=products
+            )
+            results = []
+            # Итерируемся по отфильтрованным товарам и получаем нужные данные
+            for product in products:
+                product_data = {
+                    'id': product.pk,
+                    'name': product.name,
+                    'quantity': product.products_count.available_quantity,
+                    'price': product.products_price.price,
+                }
+                results.append(product_data)
+        except Exception as err:
+            res_status = status.HTTP_400_BAD_REQUEST
         return Response(results, status=res_status)
 
 

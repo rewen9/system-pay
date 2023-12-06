@@ -21,34 +21,39 @@ class RegisterView(viewsets.ModelViewSet):
         
         return Response(js, status=res_status)
 
-    @action(methods=['post'], detail=False)
+    @action(methods=['post', 'get'], detail=False)
     def customer(self, request):
+        if request.method == 'POST':
+            return self._create_customer(request)
+        elif request.method == 'GET':
+            return self._get_customer(request)
+        else:
+            return Response(status=status.HTTP_405_METHOD_NOT_ALLOWED)
+    
+    def _create_customer(self, request):
         res_status = status.HTTP_400_BAD_REQUEST
-        if not request.data:
+        if not request.query_params:
             return Response(status=res_status)
         
-        # перебираем json с данными
-        for json_data in request.data:
-            name = json_data.get('name') 
-            company = json_data.get('company') 
-            
-            log_details = f'Пользователь {name} из компании: {company}'
-            try:
-                Users.register(json_data)
-                res_status = status.HTTP_200_OK
-                Log.objects.create(
-                    details=log_details,
-                    action_description=Log.REGISTER_ACTION_FLAG_CHOICES[Log.REGISTER_SUCCESS_USER]
-                )
-            except Exception as er:
-                Log.objects.create(
-                    details=log_details,
-                    action_description=Log.REGISTER_ACTION_FLAG_CHOICES[Log.REGISTER_FAILED_USER]
-                )
+        name = request.query_params.get('name') 
+        company = request.query_params.get('company') 
+        
+        log_details = f'Пользователь {name} из компании: {company}'
+        try:
+            Users.register(request.query_params)
+            res_status = status.HTTP_200_OK
+            Log.objects.create(
+                details=log_details,
+                action_description=Log.REGISTER_ACTION_FLAG_CHOICES[Log.REGISTER_SUCCESS_USER]
+            )
+        except Exception as er:
+            Log.objects.create(
+                details=log_details,
+                action_description=Log.REGISTER_ACTION_FLAG_CHOICES[Log.REGISTER_FAILED_USER]
+            )
         return Response(status=res_status)
     
-    @action(methods=['get'], detail=False)
-    def customer(self, request, *args, **kwargs):
+    def _get_customer(self, request):
         """Получить пользователя по ID"""
         user_data = None
         res_status = status.HTTP_200_OK

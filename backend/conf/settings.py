@@ -6,7 +6,6 @@ import os
 BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-_s^4p9vgm7uz!!l^vg(2j0%+ra!71)wyjza5^4u79we&f@35h8'
 DEBUG = True
-
 # Application definition
 
 INSTALLED_APPS = [
@@ -51,12 +50,13 @@ TEMPLATES = [
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
             ],
-        },
+        }, 
     },
 ]
 
 WSGI_APPLICATION = 'backend.conf.wsgi.application'
-ALLOWED_HOSTS = ['localhost', '127.0.0.1', '0.0.0.0', '192.168.0.241']
+
+ALLOWED_HOSTS = ['localhost', '127.0.0.1', '0.0.0.0', '192.168.0.177']
 
 DATABASES = {
     'default': {
@@ -64,8 +64,8 @@ DATABASES = {
         'HOST': os.getenv('DB_HOST', '192.168.0.177'),
         'PORT': os.getenv('DB_PORT', '5432'),
         'NAME': os.getenv('DB_NAME', 'system-payments'),
-        'USER': os.getenv('DB_USER', 'postgres'),
-        'PASSWORD': os.getenv('DB_PASSWORD', 'postgres'),
+        'USER': os.getenv('DB_USER', 'byrew'),
+        'PASSWORD': os.getenv('DB_PASSWORD', 'speed309'),
     },
 }
 
@@ -91,6 +91,8 @@ USE_TZ = True
 STATIC_URL = 'static/'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+
 
 LOGGING = {
     'version': 1,
