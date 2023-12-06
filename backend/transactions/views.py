@@ -1,5 +1,6 @@
 from rest_framework.decorators import action
 from rest_framework.response import Response
+from rest_framework.request import Request
 from rest_framework import mixins, status, viewsets
 
 from backend.transactions.models import Transactions as transactions
@@ -12,7 +13,7 @@ import logging
 class TransactionsView(viewsets.ModelViewSet):
     
     @action(methods=['get'], detail=False)
-    def transaction_an_customer(self, request):
+    def transaction_an_customer(self, request: Request):
         js = None
         res_status = status.HTTP_200_OK
         
@@ -24,7 +25,7 @@ class TransactionsView(viewsets.ModelViewSet):
         return Response(js, status=res_status)
 
     @action(methods=['get'], detail=False, url_path='transaction')
-    def transaction_an_id(self, request):
+    def transaction_an_id(self, request: Request):
         res_data = None
         res_status = status.HTTP_200_OK
         request_data = request.query_params.get('id')
@@ -35,50 +36,55 @@ class TransactionsView(viewsets.ModelViewSet):
                             ).data
                 
         except Exception as er:
-            logging.error(er)
+            logging.error('Ошибка в transaction_an_id: ', er)
             res_status = status.HTTP_404_NOT_FOUND
         
         return Response(res_data, status=res_status)
     
     
     @action(methods=['POST'], detail=False)
-    def payment(self, request):
+    def payment(self, request: Request):
+        """Инициализация транзакции."""
         res_status = status.HTTP_200_OK
         try:
-            for request_data in request.data:
-                transactions.create_transaction_new(
-                    customer_id=request_data.get('customer_id'),
-                    amount=request_data.get('amount'),
-                    currency=request_data.get('currency'),
-                )
+            transactions.create_transaction_new(
+                customer_id=request.query_params.get('customer_id'),
+                amount=request.query_params.get('amount'),
+                currency=request.query_params.get('currency'),
+            )
+            
         except Exception as er:
-            logging.error(er)
+            logging.error('Ошибка в payment: ', er)
             res_status = status.HTTP_404_NOT_FOUND
+            
         return Response(status=res_status)
 
     @action(methods=['get'], detail=False)
-    def transaction_an_summ(self, request):
+    def transaction_an_summ(self, request: Request):
         """Получить транзакции в даиапазоне сумм."""
-        js = None
+        res_data = None
         res_status = status.HTTP_200_OK
         
         try:
-            js = json.dumps(transactions.objects.filter(
-                amount__range=(request['from'], request['to'])
+            res_data = json.dumps(transactions.objects.filter(
+                                amount__range=(request.query_params.get('from'),
+                                                request.query_params.get('to')
+                                                )
                 ))
         except Exception as er:
             res_status = status.HTTP_404_NOT_FOUND
         
-        return Response(js, status=res_status)
+        return Response(res_data, status=res_status)
     
     @action(methods=['get'], detail=False)
-    def active_currency(self, request):
+    def active_currency(self, request: Request):
         """Получить активные валюты."""
         res_data = None
         res_status = status.HTTP_200_OK
+        
         try:
-            values = [choice[1] for choice in Users.CURRENCY_CHOICES]
+            res_data = [choice[1] for choice in Users.CURRENCY_CHOICES]
         except Exception as er:
             res_status = status.HTTP_404_NOT_FOUND
         
-        return Response(values, status=res_status)
+        return Response(res_data, status=res_status)
