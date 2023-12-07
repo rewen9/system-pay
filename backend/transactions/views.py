@@ -11,6 +11,7 @@ from backend.transactions.serialazer import (
     TransactionsPaymentSerializer,
     TransactionsSerializer,
     TransactionsIdSerializer,
+    TransactionsCustomerSerializer,
     )
 
 from backend.users.models import Users
@@ -21,6 +22,7 @@ class TransactionsView(viewsets.ModelViewSet):
     
     @action(methods=['get'], detail=False)
     def transaction_customer(self, request: Request):
+        """Получить все транзакции по ID пользователя"""
         log_func = 'Ошибка в transaction_customer {}'
         
         res_data = None
@@ -28,7 +30,7 @@ class TransactionsView(viewsets.ModelViewSet):
         
         # валидация данных
         customer_id = request.query_params.get('customer_id')
-        serializer = TransactionsPaymentSerializer(data={
+        serializer = TransactionsCustomerSerializer(data={
             'customer_id': customer_id
         })
         if not serializer.is_valid():
@@ -40,7 +42,7 @@ class TransactionsView(viewsets.ModelViewSet):
                 )
         
         try:
-            res_data = transactions.objects.filter(customer_id=customer_id)
+            res_data = transactions.objects.filter(customer_id=customer_id).values()
             if not res_data:
                 res_data = {'info': 'Пользователя не существует.'}
         except Exception as err:

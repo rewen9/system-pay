@@ -28,3 +28,9 @@ class TransactionsPaymentSerializer(serializers.ModelSerializer):
                 'amount',
                 'currency',
                 ]
+
+class TransactionsCustomerSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = transactions
+        fields = ['customer_id']
+        
