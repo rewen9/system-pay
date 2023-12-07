@@ -11,20 +11,24 @@ from backend.users.serializer import (
     )
 
 import json
+import logging
 
 class RegisterView(viewsets.ModelViewSet):
     
     @action(methods=['get'], detail=False)
-    def get_users(self, request: Request):
-        js = None
+    def users(self, request: Request):
+        res_data = None
         res_status = status.HTTP_200_OK
+        log_func = 'users {}'
         
         try:
-            js = json.loads(Users.objects.get().__str__())
+            res_data = json.loads(Users.objects.get().__str__())
         except Exception as er:
+            res_data = {'Error': 'Данные некоректны.'}
+            logging.error(log_func.format(er))
             res_status = status.HTTP_404_NOT_FOUND
         
-        return Response(js, status=res_status)
+        return Response(res_data, status=res_status)
 
     @action(methods=['post', 'get'], detail=False)
     def customer(self, request: Request):
@@ -36,9 +40,17 @@ class RegisterView(viewsets.ModelViewSet):
             return Response(status=status.HTTP_405_METHOD_NOT_ALLOWED)
     
     def _create_customer(self, request: Request):
+        """Создать нового пользователя."""
         res_status = status.HTTP_200_OK
+        log_func = 'Ошибка в _create_customer {}'
+        res_data = None
+        
         if not request.query_params:
-            return Response(status=status.HTTP_400_BAD_REQUEST)
+            logging.error(log_func.format('Не переданы параметры'))
+            return Response(
+                data={'Error': 'Не переданы параметры'},
+                status=status.HTTP_400_BAD_REQUEST,
+                )
         
         name = request.query_params.get('name') 
         company = request.query_params.get('company') 
@@ -49,7 +61,12 @@ class RegisterView(viewsets.ModelViewSet):
             'company': company
         })
         if not serializer.is_valid():
-            return Response(status=status.HTTP_400_BAD_REQUEST)
+            err = 'Данные имя и компания некоректны.'
+            logging.error(log_func.format(err))
+            return Response(
+                data={'Error': err},
+                status=status.HTTP_400_BAD_REQUEST,
+                )
         
         # Если вдруг передали с балансом, то валидация
         balance = request.query_params.get('balance') or 0
@@ -63,7 +80,12 @@ class RegisterView(viewsets.ModelViewSet):
         })
         
         if not serializer.is_valid():
-            return Response(status=status.HTTP_400_BAD_REQUEST)
+            err = 'Данные баланс и валюта некоректны.'
+            logging.error(log_func.format(err))
+            return Response(
+                data={'Error': err},
+                status=status.HTTP_400_BAD_REQUEST,
+                )
         
         log_details = f'Пользователь {name} из компании: {company}'
         try:
@@ -72,29 +94,38 @@ class RegisterView(viewsets.ModelViewSet):
                 details=log_details,
                 action_description=Log.REGISTER_ACTION_FLAG_CHOICES[Log.REGISTER_SUCCESS_USER]
             )
+            res_data = {'info':'Пользователь создан.'}
         except Exception as er:
+            res_data = {'Error': 'Данные некоректны.'}
+            logging.error(log_func.format(er))
             res_status = status.HTTP_400_BAD_REQUEST
             Log.objects.create(
                 details=log_details,
                 action_description=Log.REGISTER_ACTION_FLAG_CHOICES[Log.REGISTER_FAILED_USER]
             )
-        return Response(status=res_status)
+            
+        return Response(data=res_data, status=res_status)
     
     def _get_customer(self, request: Request):
         """Получить пользователя по ID"""
-        user_data = None
+        
         res_status = status.HTTP_200_OK
+        res_data = None
+        log_func = 'Ошибка в _get_customer {}'
         
         try:
-            user_data = UsersSerializer(
+            res_data = UsersSerializer(
                             Users.objects.filter(
                                 id=request.query_params.get('id')
                                 ), 
                                 many=True
                             ).data
         except Exception as er:
-            res_status = status.HTTP_404_NOT_FOUND
-        return Response(user_data, status=res_status)
+            res_data = {'Error': 'Данные некоректны.'}
+            logging.error(log_func.format(er))
+            res_status = status.HTTP_400_BAD_REQUEST
+            
+        return Response(data=res_data, status=res_status)
     
     
 class LogViewSet(viewsets.ModelViewSet):
