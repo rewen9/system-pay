@@ -20,35 +20,40 @@ import logging
 class TransactionsView(viewsets.ModelViewSet):
     
     @action(methods=['get'], detail=False)
-    def transaction_an_customer(self, request: Request):
-        log_func = 'Ошибка в transaction_an_customer {}'
+    def transaction_customer(self, request: Request):
+        log_func = 'Ошибка в transaction_customer {}'
         
         res_data = None
         res_status = status.HTTP_200_OK
+        
         # валидация данных
         customer_id = request.query_params.get('customer_id')
         serializer = TransactionsPaymentSerializer(data={
             'customer_id': customer_id
         })
         if not serializer.is_valid():
-            return Response(data={{}},
-                            status=status.HTTP_400_BAD_REQUEST
-                            )
+            err = 'Неверный тип данных.'
+            logging.error(log_func.format(err))
+            return Response(
+                data={'Error': err},
+                status=status.HTTP_400_BAD_REQUEST
+                )
         
         try:
-            js = json.dumps(
-                transactions.objects.filter(customer_id=customer_id)
-                )
-        except Exception as er:
-            log_func
+            res_data = transactions.objects.filter(customer_id=customer_id)
+            if not res_data:
+                res_data = {'info': 'Пользователя не существует.'}
+        except Exception as err:
+            res_data = {'Error': 'Данные некоректны.'}
+            logging.error(log_func.format(err))
             res_status = status.HTTP_400_BAD_REQUEST
         
-        return Response(js, status=res_status)
+        return Response(res_data, status=res_status)
 
-    @action(methods=['get'], detail=False, url_path='transaction')
-    def transaction_an_id(self, request: Request):
+    @action(methods=['get'], detail=False)
+    def transaction(self, request: Request):
         """Получить транзакцию по ID."""
-        log_func = 'transaction_an_id {}'
+        log_func = 'transaction {}'
         
         res_data = None
         res_status = status.HTTP_200_OK
@@ -63,13 +68,12 @@ class TransactionsView(viewsets.ModelViewSet):
                             status=status.HTTP_400_BAD_REQUEST)
         
         try:
-            if request_data:
-                res_data = TransactionsSerializer(
-                                transactions.objects.filter(id=request_data).first()
-                            ).data
-                
+            res_data = TransactionsSerializer(
+                            transactions.objects.get(id=request_data)
+                        ).data
         except Exception as er:
             logging.error(log_func.format(er))
+            res_data = {'Error': 'Транзакция не существует.'}
             res_status = status.HTTP_400_BAD_REQUEST
         
         return Response(res_data, status=res_status)
@@ -122,9 +126,9 @@ class TransactionsView(viewsets.ModelViewSet):
         return Response(data=res_data, status=res_status)
 
     @action(methods=['get'], detail=False)
-    def transaction_an_summ(self, request: Request):
+    def transactions_range_summ(self, request: Request):
         """Получить транзакции в даиапазоне сумм."""
-        log_func = 'Ошибка в transaction_an_summ {}'
+        log_func = 'Ошибка в transactions_range_summ {}'
         res_data = None
         res_status = status.HTTP_200_OK
         
@@ -150,6 +154,8 @@ class TransactionsView(viewsets.ModelViewSet):
                                 amount__range=(summ_from, summ_to)
                             )
                         ).data
+            if not res_data:
+                res_data = {'info': 'Транзакций не найдено.'}
         except Exception as er:
             logging.error(log_func.format(er))
             res_data = {'Error': 'Данные некоректны.'}
