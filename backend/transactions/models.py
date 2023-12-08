@@ -71,8 +71,9 @@ class Transactions(models.Model):
         amount = request.query_params.get('amount')
         currency = request.query_params.get('currency')
         product_quantity = request.query_params.get('product_quantity') 
-        product = request.query_params.get('product') 
+        product_id = request.query_params.get('product') 
         
+        product = Products.objects.filter(id__in=product_id).first()
         customer = Users.objects.filter(id=customer_id).first()
         transaction = cls(
             customer=customer,
