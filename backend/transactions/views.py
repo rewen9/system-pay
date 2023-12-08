@@ -15,8 +15,11 @@ from backend.transactions.serialazer import (
     )
 
 from backend.users.models import Users
+from backend.users.views import RegisterView
+
 import json
 import logging
+from dataclasses import asdict
 
 class TransactionsView(viewsets.ModelViewSet):
     
@@ -92,27 +95,52 @@ class TransactionsView(viewsets.ModelViewSet):
         customer_id = request.query_params.get('customer_id')
         amount = request.query_params.get('amount')
         currency = request.query_params.get('currency')
+        product_quantity = request.query_params.get('product_quantity')  or "not yet"
+        product = request.query_params.get('product') or "not yet"
         
         # валидация данных
         serializer = TransactionsPaymentSerializer(data={
             'customer_id': customer_id,
             'amount': amount,
             'currency': currency,
+            'product': product,
+            'product_quantity': product_quantity,
         })
         
         if not serializer.is_valid():
             err = "Неверный тип данных."
             logging.error(log_func.format(err))
-            return Response(data={"error": err},
+            logging.error(serializer.errors.items())
+            return Response(data={"error": err, 'more_info': serializer.errors.items()},
                             status=status.HTTP_400_BAD_REQUEST)
         
-        if not Users.objects.filter(pk=customer_id).exists(): 
+        # Влидация - Проверка наличия пользователя
+        customer = Users.objects.filter(pk=customer_id)
+        if not customer.exists(): 
             err = 'Данный пользователь не существует.'
             logging.error(log_func.format(err))
             return Response(
                 data={"error": err},
                 status=status.HTTP_400_BAD_REQUEST
                 ) 
+        customer = customer.first()
+        # Влидация - Неверный тип валюты
+        if customer.balance_currency != currency:
+            err = 'Неверный тип валюты пользователя.'
+            logging.error(log_func.format(err))
+            return Response(
+                data={"error": err},
+                status=status.HTTP_400_BAD_REQUEST
+                )
+        
+        # Валидация - недостарточно средств
+        if customer.balance < amount:
+            err = 'Недостаточно средств.'
+            logging.error(log_func.format(err))
+            return Response(
+                data={"error": err},
+                status=status.HTTP_400_BAD_REQUEST
+                )
         
         try:
             transactions.create_transaction_new(
