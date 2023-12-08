@@ -5,7 +5,7 @@ from rest_framework import mixins, status, viewsets
 
 
 
-from backend.transactions.models import Transactions as transactions
+
 from backend.transactions.serialazer import (
     TransactionsAmountSerializer,
     TransactionsPaymentSerializer,
@@ -13,6 +13,13 @@ from backend.transactions.serialazer import (
     TransactionsIdSerializer,
     TransactionsCustomerSerializer,
     )
+
+from backend.transactions.models import (
+        Transactions,
+        Reasons,
+    )
+    
+from backend.products.models import Products
 
 from backend.users.models import Users
 from backend.users.views import RegisterView
@@ -45,7 +52,7 @@ class TransactionsView(viewsets.ModelViewSet):
                 )
         
         try:
-            res_data = transactions.objects.filter(customer_id=customer_id).values()
+            res_data = Transactions.objects.filter(customer_id=customer_id).values()
             if not res_data:
                 res_data = {'info': 'Пользователя не существует.'}
         except Exception as err:
@@ -74,7 +81,7 @@ class TransactionsView(viewsets.ModelViewSet):
         
         try:
             res_data = TransactionsSerializer(
-                            transactions.objects.get(id=request_data)
+                            Transactions.objects.get(id=request_data)
                         ).data
         except Exception as er:
             logging.error(log_func.format(er))
@@ -123,8 +130,9 @@ class TransactionsView(viewsets.ModelViewSet):
                 data={"error": err},
                 status=status.HTTP_400_BAD_REQUEST
                 ) 
+        
+        # Валидация - Неверный тип валюты
         customer = customer.first()
-        # Влидация - Неверный тип валюты
         if customer.balance_currency != currency:
             err = 'Неверный тип валюты пользователя.'
             logging.error(log_func.format(err))
@@ -132,22 +140,49 @@ class TransactionsView(viewsets.ModelViewSet):
                 data={"error": err},
                 status=status.HTTP_400_BAD_REQUEST
                 )
-        
-        # Валидация - недостарточно средств
-        if customer.balance < amount:
-            err = 'Недостаточно средств.'
+            
+        # Влидация - на существование продукта
+        product = Products.objects.filter(id__in=product)
+        if not product.exists():
+            err = 'Данный продукт не существует.'
             logging.error(log_func.format(err))
             return Response(
                 data={"error": err},
                 status=status.HTTP_400_BAD_REQUEST
                 )
+        product = product.first()
         
+        # Валидация - недостарточно средств
+        if customer.balance < int(amount):
+            err = 'Недостаточно средств.'
+            logging.error(log_func.format(err))
+            
+            transaction = Transactions(
+                    customer=customer,
+                    amount=amount, 
+                    currency=currency,
+                    product=product,
+                    product_quantity=product_quantity,
+                    status=Transactions.STATUS_REJECTED
+                )
+            transaction.save() 
+            
+            reason_reject = Reasons(
+                reason=Reasons.CHOISE_NOT_FUNDS,
+                transact=transaction
+                )
+            reason_reject.save()
+            
+            transaction.reason_reject = reason_reject
+            transaction.save()
+            
+            return Response(
+                data={"error": err},
+                status=status.HTTP_400_BAD_REQUEST
+                )
+            
         try:
-            transactions.create_transaction_new(
-                customer_id=customer_id,
-                amount=amount,
-                currency=currency,
-            )
+            Transactions.create_transaction_new(request, customer)
         except Exception as er:
             res_data = {"error": "Неверный тип данных."}
             logging.error(log_func.format(er))
@@ -180,7 +215,7 @@ class TransactionsView(viewsets.ModelViewSet):
         
         try:
             res_data = TransactionsSerializer(
-                            transactions.objects.filter(
+                            Transactions.objects.filter(
                                 amount__range=(summ_from, summ_to)
                             )
                         ).data

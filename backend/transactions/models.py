@@ -65,16 +65,26 @@ class Transactions(models.Model):
     )
     
     @classmethod
-    def create_transaction_new(cls, customer_id, amount, currency):
+    def create_transaction_new(cls, request, customer):
+        
+        customer_id = request.query_params.get('customer_id')
+        amount = request.query_params.get('amount')
+        currency = request.query_params.get('currency')
+        product_quantity = request.query_params.get('product_quantity') 
+        product = request.query_params.get('product') 
+        
         customer = Users.objects.filter(id=customer_id).first()
         transaction = cls(
             customer=customer,
             amount=amount, 
             currency=currency,
+            product=product,
+            product_quantity=product_quantity
         )
+        
         transaction.save()
 
-        customer.balance += int(amount)
+        customer.balance -= int(amount)
         customer.save(update_fields=['balance'])
 
         transaction.status = cls.STATUS_COMPLETED
