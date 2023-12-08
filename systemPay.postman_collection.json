@@ -1,0 +1,397 @@
+{
+	"info": {
+		"_postman_id": "1c4fab53-bb05-4968-8f24-256612d17f56",
+		"name": "vladimirPya",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "14246573"
+	},
+	"item": [
+		{
+			"name": "PROD_Получить все продукты",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8000/products/products/get_products",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8000",
+					"path": [
+						"products",
+						"products",
+						"get_products"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "PROD_Создание продукта",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "[\r\n    {\r\n        \"name\": \"test1\",\r\n        \"count\": 23\r\n    },\r\n    {\r\n        \"name\": \"test2\",\r\n        \"count\": 23,\r\n        \"price\": 500\r\n    }\r\n]",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "localhost:8000/products/products/product/?name=test111&count=1&price=456",
+					"host": [
+						"localhost"
+					],
+					"port": "8000",
+					"path": [
+						"products",
+						"products",
+						"product",
+						""
+					],
+					"query": [
+						{
+							"key": "name",
+							"value": "test111"
+						},
+						{
+							"key": "count",
+							"value": "1"
+						},
+						{
+							"key": "price",
+							"value": "456"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "PROD_Получить все продукты больше суммы",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"max_price\": 50\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "localhost:8000/products/products/products_max_price/?max_price=200",
+					"host": [
+						"localhost"
+					],
+					"port": "8000",
+					"path": [
+						"products",
+						"products",
+						"products_max_price",
+						""
+					],
+					"query": [
+						{
+							"key": "max_price",
+							"value": "200"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "USERS_Получить пользователя по ID",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "localhost:8000/users/users/customer?id=6",
+					"host": [
+						"localhost"
+					],
+					"port": "8000",
+					"path": [
+						"users",
+						"users",
+						"customer"
+					],
+					"query": [
+						{
+							"key": "id",
+							"value": "6"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "USERS_Создать пользователя",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "[\r\n    {\r\n        \"name\":\"Vladimir\",\r\n        \"company\": \"astra\",\r\n        \"balance\": 5000,\r\n        \"currency\": \"RUB\"\r\n    },\r\n    {\r\n        \"name\":\"Vladimir 2\",\r\n        \"company\": \"astra\",\r\n        \"balance\": 5000,\r\n        \"currency\": \"USD\"\r\n    }\r\n]",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "localhost:8000/users/users/customer/",
+					"host": [
+						"localhost"
+					],
+					"port": "8000",
+					"path": [
+						"users",
+						"users",
+						"customer",
+						""
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "TRANSACT_Получить варианты валют",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "localhost:8000/transactions/transactions/active_currency/",
+					"host": [
+						"localhost"
+					],
+					"port": "8000",
+					"path": [
+						"transactions",
+						"transactions",
+						"active_currency",
+						""
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "TRANSACT_новый платёж payment",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "[\r\n    {\r\n        \"customer_id\": 5,\r\n        \"amount\": 500,\r\n        \"currency\": \"RUB\"\r\n    },\r\n    {\r\n        \"customer_id\": 5,\r\n        \"amount\": 500,\r\n        \"currency\": \"RUB\"\r\n    }\r\n]",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "localhost:8001/transactions/transactions/payment/?customer_id=8&amount=55&currency=RUB&product=2&product_quantity=4",
+					"host": [
+						"localhost"
+					],
+					"port": "8001",
+					"path": [
+						"transactions",
+						"transactions",
+						"payment",
+						""
+					],
+					"query": [
+						{
+							"key": "customer_id",
+							"value": "8"
+						},
+						{
+							"key": "amount",
+							"value": "55"
+						},
+						{
+							"key": "currency",
+							"value": "RUB"
+						},
+						{
+							"key": "product",
+							"value": "2"
+						},
+						{
+							"key": "product_quantity",
+							"value": "4"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "TRANSACT_просмотр транзакции по ID",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "[\r\n    {\r\n        \"customer_id\": 5,\r\n        \"amount\": -500,\r\n        \"currency\": \"RUB\"\r\n    },\r\n    {\r\n        \"customer_id\": 5,\r\n        \"amount\": -500,\r\n        \"currency\": \"RUB\"\r\n    }\r\n]",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "localhost:8000/transactions/transactions/transaction?id=2",
+					"host": [
+						"localhost"
+					],
+					"port": "8000",
+					"path": [
+						"transactions",
+						"transactions",
+						"transaction"
+					],
+					"query": [
+						{
+							"key": "id",
+							"value": "2"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "TRANSACT_просмотр транзакции по customer",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "[\r\n    {\r\n        \"customer_id\": 5,\r\n        \"amount\": -500,\r\n        \"currency\": \"RUB\"\r\n    },\r\n    {\r\n        \"customer_id\": 5,\r\n        \"amount\": -500,\r\n        \"currency\": \"RUB\"\r\n    }\r\n]",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "localhost:8000/transactions/transactions/transaction_customer?customer_id=8",
+					"host": [
+						"localhost"
+					],
+					"port": "8000",
+					"path": [
+						"transactions",
+						"transactions",
+						"transaction_customer"
+					],
+					"query": [
+						{
+							"key": "customer_id",
+							"value": "8"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "TRANSACT_просмотр транзакции в диапазоне сумм",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "[\r\n    {\r\n        \"customer_id\": 5,\r\n        \"amount\": -500,\r\n        \"currency\": \"RUB\"\r\n    },\r\n    {\r\n        \"customer_id\": 5,\r\n        \"amount\": -500,\r\n        \"currency\": \"RUB\"\r\n    }\r\n]",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "localhost:8000/transactions/transactions/transaction_an_summ?from=3&to=1000",
+					"host": [
+						"localhost"
+					],
+					"port": "8000",
+					"path": [
+						"transactions",
+						"transactions",
+						"transaction_an_summ"
+					],
+					"query": [
+						{
+							"key": "from",
+							"value": "3"
+						},
+						{
+							"key": "to",
+							"value": "1000"
+						}
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}
