@@ -7,7 +7,6 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-_s^4p9vgm7uz!!l^vg(2j0%+ra!71)wyjza5^4u79we&f@35h8'
 DEBUG = True
 # Application definition
-
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
