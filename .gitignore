@@ -2,3 +2,4 @@
 /param_start.txt
 /test.py
 *.pyc
+.vscode/launch.json
