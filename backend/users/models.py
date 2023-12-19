@@ -1,4 +1,5 @@
 from django.db import models
+from backend.users.managers import LogsAuthorizedManager
 
 class Users(models.Model):
     """Модель зарегистрированных пользователей."""
@@ -45,7 +46,8 @@ class Users(models.Model):
             balance=balance, 
             balance_currency=currency,
         )
-        
+
+   
 class Log(models.Model):
     """Описывает лог действий пользователя."""
 
@@ -75,6 +77,7 @@ class Log(models.Model):
         blank=True,
         
     )
+    Authorized = LogsAuthorizedManager()
 
 
     def __str__(self):
